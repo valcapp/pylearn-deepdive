@@ -1,0 +1,69 @@
+{
+  "quotes": [
+    {
+      "class_stock": {
+        "symbol": "TSLA",
+        "date": {
+          "class_date": "2018-11-22"
+        },
+        "open": "Decimal(338.19)",
+        "high": "Decimal(338.64)",
+        "low": "Decimal(337.60)",
+        "close": "Decimal(338.19)",
+        "volume": 365607
+      }
+    },
+    {
+      "class_stock": {
+        "symbol": "AAPL",
+        "date": {
+          "class_date": "2018-11-22"
+        },
+        "open": "Decimal(176.66)",
+        "high": "Decimal(177.25)",
+        "low": "Decimal(176.64)",
+        "close": "Decimal(176.78)",
+        "volume": 3699184
+      }
+    },
+    {
+      "class_stock": {
+        "symbol": "MSFT",
+        "date": {
+          "class_date": "2018-11-22"
+        },
+        "open": "Decimal(103.25)",
+        "high": "Decimal(103.48)",
+        "low": "Decimal(103.07)",
+        "close": "Decimal(103.11)",
+        "volume": 4493689
+      }
+    }
+  ],
+  "trades": [
+    {
+      "class_trade": {
+        "symbol": "TSLA",
+        "timestamp": {
+          "class_datetime": "2018-11-22T10:05:12"
+        },
+        "order": "buy",
+        "price": "Decimal(338.25)",
+        "commission": "Decimal(9.99)",
+        "volume": 100
+      }
+    },
+    {
+      "class_trade": {
+        "symbol": "AAPL",
+        "timestamp": {
+          "class_datetime": "2018-11-22T10:30:05"
+        },
+        "order": "sell",
+        "price": "Decimal(177.01)",
+        "commission": "Decimal(9.99)",
+        "volume": 20
+      }
+    }
+  ]
+}
