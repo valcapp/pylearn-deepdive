@@ -28,8 +28,20 @@ def validate_amount_request(validate_func:Callable, amount:Number)->None:
             + f"Amount value failed validation test by: {validate_func.__name__}."
         )
 
-def positive_amount_validation(amount:Number)->None:
+def validate_positive_amount(amount:Number)->None:
     return validate_amount_request(lambda x: x>=0, amount)
+
+def returning_confirmation(transaction_type:TransactionType)->str:
+    def decorator(func:Callable)->Callable:
+        @wraps(func)
+        def decorated(self, *args, **kwargs)->str:
+            try:
+                func(*args, **kwargs)
+                return self.confirm_transaction(transaction_type)
+            except TransactionDeclinedException:
+                return self.confirm_transaction(TransactionType.X)
+        return decorated
+    return decorator
 
 class Account:
     """Account are uniquely identified by an account number,
@@ -47,12 +59,16 @@ class Account:
         self.first_name = first_name
         self.last_name = last_name
         try:
-            validate_amount_request(init_balance)
+            validate_positive_amount(init_balance)
             self._balance = init_balance
         except InvalidAmountRequest:
             self._balance = Decimal(0)
         if preferred_tz is not None:
             self.preferred_tz = preferred_tz
+    
+    def __repr__(self):
+        return (f"Account({self.account_no}, {self.first_name}, {self.last_name}, "
+            + f"{self.balance}, {self.preferred_tz})")
     
     @property
     def full_name(self):
@@ -65,33 +81,20 @@ class Account:
         return self._balance
     
     def confirm_transaction(self, transaction_type:TransactionType)->str:
-        return TransactionConfirmation(
-            self.account,
+        return TransactionConfirmation.generate(
+            self.account_no,
             transaction_type,
             self.preferred_tz
         ).encode()
     
-    def returning_confirmation(self, transaction_type:TransactionType)->str:
-        def decorator(func:Callable)->Callable:
-            @wraps(func)
-            def decorated(*args, **kwargs)->str:
-                try:
-                    func(*args, **kwargs)
-                    return self.confirm_transaction(transaction_type)
-                except TransactionDeclinedException:
-                    return self.confirm_transaction(TransactionType.X)
-            return decorated
-        return decorator
-    
-    @self.returning_confirmation(TransactionType.D)
+    @returning_confirmation(TransactionType.D)
     def deposit(self, amount:Decimal)->None:
-        positive_amount_validation(amount)
+        validate_positive_amount(amount)
         self._balance += Decimal(amount)
-        return self.confirm_transaction()
     
-    @self.returning_confirmation(TransactionType.W)
+    @returning_confirmation(TransactionType.W)
     def withdraw(self, amount:Decimal)->None:
-        positive_amount_validation(amount)
+        validate_positive_amount(amount)
         if self.balance < amount:
             raise InsufficientCreditException(
                 f"Transaction Declined because of insufficient credit."
@@ -105,7 +108,6 @@ class Account:
     def calc_monthly_interest(cls, balance:Decimal)->Decimal:
         return cls.monthly_interest_rate * balance
     
-    @self.returning_confirmation(TransactionType.I)
+    @returning_confirmation(TransactionType.I)
     def pay_monthly_interest(self)->None:
         self._balance += self.calc_monthly_interest(self.balance)
-    

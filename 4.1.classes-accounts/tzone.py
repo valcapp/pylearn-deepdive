@@ -12,3 +12,8 @@ class TimeZone:
             dtime.astimezone(self.tz).isoformat(sep=' ')
             + f" ({self.name})"
         )
+    
+    def __repr__(self):
+        d = self.tz.utcoffset(None)
+        return (f"{self.__class__.__name__}("
+            +f"datetime.timedelta({d.seconds}), {self.name})")

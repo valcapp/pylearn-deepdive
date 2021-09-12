@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from itertools import count
 from datetime import datetime, timezone
 from dataclasses import dataclass
+
 
 from tzone import TimeZone
 from enum import Enum
@@ -31,6 +34,7 @@ def decode_confirmcode_dtime(dtime:str)->datetime:
 #         encode_now_confirmcode(),
 #         next(transactions_count)
 #     ))
+
 
 @dataclass
 class TransactionConfirmation:
@@ -92,23 +96,23 @@ class TransactionConfirmation:
     def time_utc(self):
         return self._dtime.isoformat(sep='T')
 
-def parse_confirmation(confirmation_code:str, tz:TimeZone=None)->TransactionConfirmation:
-    (
-        transaction_type_name,
-        account_no,
-        dtime_str,
-        id_str
-    ) = confirmation_code.split('-')
-    transaction_type = next(
-        ttype for ttype in TransactionType
-        if ttype.name == transaction_type_name
-    )
-    dtime = decode_confirmcode_dtime(dtime_str)
-    return TransactionConfirmation(
-        account_no,
-        transaction_type,
-        int(id_str),
-        dtime,
-        tz
-    )
+# def parse_confirmation(confirmation_code:str, tz:TimeZone=None)->TransactionConfirmation:
+#     (
+#         transaction_type_name,
+#         account_no,
+#         dtime_str,
+#         id_str
+#     ) = confirmation_code.split('-')
+#     transaction_type = next(
+#         ttype for ttype in TransactionType
+#         if ttype.name == transaction_type_name
+#     )
+#     dtime = decode_confirmcode_dtime(dtime_str)
+#     return TransactionConfirmation(
+#         account_no,
+#         transaction_type,
+#         int(id_str),
+#         dtime,
+#         tz
+#     )
     
