@@ -1,5 +1,5 @@
-__pycache__/**
-.py[doc]
+**/__pycache__/**
+*.py[doc]
 
 /env/**
 /ienv/**
