@@ -80,15 +80,18 @@ class Mod:
         return self.value
     
     def __add__(self, other)->Mod:
+        custom_exc = NotImplemented(
+            f'{other} cannot be added to instance of {self.__class__.__name__}'
+            +f'it must be either int or {self.__class__.__name__} instance with same modulus'
+        )
         if isinstance(other, int):
             new_value = self.value + other
         elif isinstance(other, self.__class__):
+            if self.modulus != other.modulus:
+                raise custom_exc
             new_value = self.value + other.value
         else:
-            raise NotImplemented(
-                f'{other} cannot be added to instance of {self.__class__.__name__}'
-                +'it must be either same type or int.'
-            )
+            raise custom_exc
         return Mod(new_value, self.modulus)
 
     def __iadd__(self, other)->None:
@@ -110,15 +113,18 @@ class Mod:
         return self.__neg__().__add__(other)
     
     def __mul__(self, other)->Mod:
+        custom_exc = NotImplemented(
+            f'{other} cannot be added to instance of {self.__class__.__name__}'
+            +'it must be either same type or int.'
+        )
         if isinstance(other, int):
             new_value = self.value * other
         elif isinstance(other, self.__class__):
+            if self.modulus != other.modulus:
+                raise custom_exc
             new_value = self.value * other.value
         else:
-            raise NotImplemented(
-                f'{other} cannot be added to instance of {self.__class__.__name__}'
-                +'it must be either same type or int.'
-            )
+            raise custom_exc
         return Mod(new_value, self.modulus)
 
     def __imul__(self, other)->None:
