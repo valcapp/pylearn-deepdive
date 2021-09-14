@@ -31,6 +31,8 @@ def check_positive(value:int)->None:
         f'{value} is not positive, it must be > 0'
     )
 
+def value_of(other)->int:
+    return other if isinstance(other, int) else other.value
 class Mod:
     """Implements some concepts of modular arithmetic"""
     def __init__(self, value:int, modulus:int)->None:
@@ -58,20 +60,26 @@ class Mod:
             +")"
         )
     
-    def __eq__(self, other)->bool:
-        custom_exc = NotImplemented(
-            f'{other} cannot be compared with instance of {self}.'
-            + f'{self.__class__.__name__} instance must be compared '
-            + 'with either an int or same class instance with same modulus'
+    def check_implemented(self, other, message)->None:
+        not_implemented = NotImplemented(
+            f'Unsupported operation between {type(other)} and {self.__class__.__name__}.'
+            +f'{self.__class__.__name__} supports operations with either int'
+            +f'or another {self.__class__.__name__} instance with same modulus'
         )
         if isinstance(other, int):
-            return self.value == (other % self.modulus)
-        elif isinstance(other, self.__class__):
+            return
+        if isinstance(other, self.__class__):
             if self.modulus != other.modulus:
-                raise custom_exc
-            return self.value == other.value
+                raise not_implemented
+            return
         else:
-            raise custom_exc
+            raise not_implemented
+    
+    def __eq__(self, other)->bool:
+        self.check_implemented(other)
+        return (self.value ==
+            (value_of(other) % self.modulus)
+        )
     
     def __hash__(self)->int:
         return hash((self.__class__, self.value, self.modulus,))
@@ -80,19 +88,11 @@ class Mod:
         return self.value
     
     def __add__(self, other)->Mod:
-        custom_exc = NotImplemented(
-            f'{other} cannot be added to instance of {self.__class__.__name__}'
-            +f'it must be either int or {self.__class__.__name__} instance with same modulus'
+        self.check_implemented(other)
+        return self.__class__(
+            self.value + value_of(other),
+            self.modulus
         )
-        if isinstance(other, int):
-            new_value = self.value + other
-        elif isinstance(other, self.__class__):
-            if self.modulus != other.modulus:
-                raise custom_exc
-            new_value = self.value + other.value
-        else:
-            raise custom_exc
-        return Mod(new_value, self.modulus)
 
     def __iadd__(self, other)->None:
         self._value = self.__add__(other).value % self.modulus
@@ -113,23 +113,43 @@ class Mod:
         return self.__neg__().__add__(other)
     
     def __mul__(self, other)->Mod:
-        custom_exc = NotImplemented(
-            f'{other} cannot be added to instance of {self.__class__.__name__}'
-            +'it must be either same type or int.'
+        self.check_implemented(other)
+        return self.__class__(
+            self.value * value_of(other),
+            self.modulus
         )
-        if isinstance(other, int):
-            new_value = self.value * other
-        elif isinstance(other, self.__class__):
-            if self.modulus != other.modulus:
-                raise custom_exc
-            new_value = self.value * other.value
-        else:
-            raise custom_exc
-        return Mod(new_value, self.modulus)
 
     def __imul__(self, other)->None:
-        self._value = = self.__mul__(other).value % self.modulus
+        self._value = self.__mul__(other).value % self.modulus
     
     def __rmul__(self, other)->Mod:
         return self.__mul__(other)
+
+    def __pow__(self, other)->Mod:
+        self.check_implemented(other)
+        return self.__class__(
+            self.value ** value_of(other),
+            self.modulus
+        )
+    
+    def __ipow__(self, other)->None:
+        self._value = self.__pow__(other).value % self.modulus
+        
+    def __gt__(self, other)->None:
+        self.check_implemented(other)
+        return (self.value > value_of(other)%self.modulus )
+    
+    def __ge__(self, other)->None:
+        self.check_implemented(other)
+        return (self.value >= value_of(other)%self.modulus )
+    
+    def __lt__(self, other)->None:
+        self.check_implemented(other)
+        return (self.value < value_of(other)%self.modulus )
+    
+    def __le__(self, other)->None:
+        self.check_implemented(other)
+        return (self.value <= value_of(other)%self.modulus )
+
+    
     
