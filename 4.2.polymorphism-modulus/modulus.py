@@ -1,15 +1,6 @@
 from __future__ import annotations
 from collections.abc import Callable
 
-class InvalidValue(ValueError):
-    """When the value does not meet validy requirements"""
-
-class NegativeValueError(InvalidValue):
-    """When the value is expected to be greater than or equal to zero."""
-    
-class NonIntegerValueError(InvalidValue):
-    """When the value is expected to integer."""
-
 def check_validity(value, validate:Callable, err_type:Exception, message:str)->bool:
     try:
         if not validate(value):
@@ -20,14 +11,14 @@ def check_validity(value, validate:Callable, err_type:Exception, message:str)->b
 def check_integer(value:int)->None:
     return check_validity(
         value, lambda value: isinstance(int(value), int),
-        NonIntegerValueError,
-        f'{value} is not an integer, it must be '
+        ValueError,
+        f'{value} is not an integer, it must be integer'
     )
 
 def check_positive(value:int)->None:
     return check_validity(
         value, lambda value: value > 0,
-        NegativeValueError,
+        ValueError,
         f'{value} is not positive, it must be > 0'
     )
 
