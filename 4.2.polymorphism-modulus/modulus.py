@@ -1,5 +1,5 @@
 from __future__ import annotations
-from collections.abc import Callables
+from collections.abc import Callable
 
 class InvalidValue(ValueError):
     """When the value does not meet validy requirements"""
@@ -54,17 +54,18 @@ class Mod:
         return (
             f"{self.__class__.__name__}("
             +', '.join(
-                f"{key} = {getattr(self, key)}"
+                f"{key}={getattr(self, key)}"
                 for key in ('value','modulus')
             )
             +")"
         )
     
-    def check_implemented(self, other, message)->None:
-        not_implemented = NotImplemented(
+    def check_implemented(self, other, message='')->None:
+        not_implemented = TypeError(
             f'Unsupported operation between {type(other)} and {self.__class__.__name__}.'
             +f'{self.__class__.__name__} supports operations with either int'
             +f'or another {self.__class__.__name__} instance with same modulus'
+            +message
         )
         if isinstance(other, int):
             return
@@ -94,10 +95,11 @@ class Mod:
             self.modulus
         )
 
-    def __iadd__(self, other)->None:
+    def __iadd__(self, other)->Mod:
         self._value = self.__add__(other).value % self.modulus
+        return self
     
-    def __radd__(self, other)->None:
+    def __radd__(self, other)->Mod:
         return self.__add__(other)
     
     def __neg__(self)->Mod:
@@ -106,8 +108,9 @@ class Mod:
     def __sub__(self, other)->Mod:
         return self.__add__(-other)
 
-    def __isub__(self, other)->None:
+    def __isub__(self, other)->Mod:
         self._value = self.__sub__(other).value % self.modulus
+        return self
     
     def __rsub__(self, other)->Mod:
         return self.__neg__().__add__(other)
@@ -119,8 +122,9 @@ class Mod:
             self.modulus
         )
 
-    def __imul__(self, other)->None:
+    def __imul__(self, other)->Mod:
         self._value = self.__mul__(other).value % self.modulus
+        return self
     
     def __rmul__(self, other)->Mod:
         return self.__mul__(other)
@@ -132,24 +136,25 @@ class Mod:
             self.modulus
         )
     
-    def __ipow__(self, other)->None:
+    def __ipow__(self, other)->Mod:
         self._value = self.__pow__(other).value % self.modulus
+        return self
         
-    def __gt__(self, other)->None:
+    def __gt__(self, other)->bool:
         self.check_implemented(other)
-        return (self.value > value_of(other)%self.modulus )
+        return (self.value > value_of(other))
     
-    def __ge__(self, other)->None:
+    def __ge__(self, other)->bool:
         self.check_implemented(other)
-        return (self.value >= value_of(other)%self.modulus )
+        return (self.value >= value_of(other))
     
-    def __lt__(self, other)->None:
+    def __lt__(self, other)->bool:
         self.check_implemented(other)
-        return (self.value < value_of(other)%self.modulus )
+        return (self.value < value_of(other))
     
-    def __le__(self, other)->None:
+    def __le__(self, other)->bool:
         self.check_implemented(other)
-        return (self.value <= value_of(other)%self.modulus )
+        return (self.value <= value_of(other))
 
     
     
