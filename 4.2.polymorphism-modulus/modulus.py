@@ -1,5 +1,6 @@
 from __future__ import annotations
 from collections.abc import Callable
+from functools import total_ordering
 
 def check_validity(value, validate:Callable, err_type:Exception, message:str)->bool:
     try:
@@ -24,6 +25,8 @@ def check_positive(value:int)->None:
 
 def value_of(other)->int:
     return other if isinstance(other, int) else other.value
+
+@total_ordering
 class Mod:
     """Implements some concepts of modular arithmetic"""
     def __init__(self, value:int, modulus:int)->None:
@@ -134,18 +137,6 @@ class Mod:
     def __gt__(self, other)->bool:
         self.check_implemented(other)
         return (self.value > value_of(other))
-    
-    def __ge__(self, other)->bool:
-        self.check_implemented(other)
-        return (self.value >= value_of(other))
-    
-    def __lt__(self, other)->bool:
-        self.check_implemented(other)
-        return (self.value < value_of(other))
-    
-    def __le__(self, other)->bool:
-        self.check_implemented(other)
-        return (self.value <= value_of(other))
 
     
     
