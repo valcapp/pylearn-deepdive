@@ -2,6 +2,8 @@ from resource import Resource
 from helpers import check_natural
 
 class CPU(Resource):
+    """A Resource class for CPU inventory
+    """
     def __init__(self,
             name:str, manufacturer:str,
             cores:int, socket:str, power_watts:int,
