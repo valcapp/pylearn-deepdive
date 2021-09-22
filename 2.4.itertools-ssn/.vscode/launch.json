@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "play",
+            "type": "python",
+            "request": "launch",
+            "program": "play.py",
+            "console": "internalConsole"
+        },
+        {
+            "name": "consume",
+            "type": "python",
+            "request": "launch",
+            "program": "consume.py",
+            "console": "internalConsole"
+        }
+    ]
+}
