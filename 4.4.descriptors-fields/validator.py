@@ -1,7 +1,11 @@
 class RangeValidator:
     def __init__(self, min_val:int = None, max_val:int = None)->None:
+        self.check_init_types(min_val, max_val)
         self.min = min_val
         self.max = max_val
+    
+    def check_init_types(self, min_val, max_val):
+        pass
     
     def eval(self, value):
         return value
@@ -37,21 +41,31 @@ class RangeValidator:
         self.check_range(value)
         instance.__dict__[self.name] = value
     
-    def __get__(self, owner, instance)->object:
+    def __get__(self, instance, owner)->object:
         if instance is None:
             return self
-        return instance.__dict__.get(self.name)
+        return instance.__dict__.get(self.name, None)
 
+class TypedRangeField(RangeValidator):
+    def check_init_types(self, min_val, max_val)->None:
+        super().check_init_types(min_val, max_val)
+        for val in min_val, max_val:
+            if not (isinstance(val,int) or val is None):
+                raise TypeError(
+                    f"Min and Max values should be either None or int types. Not: '{type(val)}'"
+                )
 
-class IntegerField(RangeValidator):
+class IntegerField(TypedRangeField):
     def check_type(self, value) -> None:
+        super().check_type(value)
         if not isinstance(value, int):
             raise TypeError(
                 f"Value must be of type int. not '{type(value)}'"
             )
 
-class CharField(RangeValidator):
+class CharField(TypedRangeField):
     def check_type(self, value)->None:
+        super().check_type(value)
         if not isinstance(value, str):
             raise TypeError(
                 f"Value must be of type str, not '{type(value)}'"
