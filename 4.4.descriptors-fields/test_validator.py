@@ -1,5 +1,8 @@
+import functools
 import unittest
 from parameterized import parameterized_class
+from typing import Iterable
+# from utils_test import register_testcase, testcased, parameterized_testcase
 # import pytest
 
 from validator import RangeValidator, TypedRangeField, IntegerField, CharField
@@ -27,6 +30,22 @@ class Pt2D:
             and abs(self) < abs(other)
         )
 
+def register_testcase(original_class:type, params:Iterable=None)->type:
+    """This is to be able to write classes that looks like TestCase classes
+    but can inherit test methods between them, and then only at the end call
+    this function, at the end, to register them as TestCases"""
+    class_name = original_class.__name__.strip('_')
+    if not class_name.startswith('Test'):
+        class_name = 'Test'+class_name
+    testcase_class = type(
+        class_name,
+        (original_class, unittest.TestCase),
+        {}
+    )
+    if params is not None:
+        testcase_class = parameterized_class(*params)(testcase_class)
+    globals()[class_name] = testcase_class
+
 range_validator_params = (
     [(0,10,11)],
     [(5,20,0)],
@@ -34,7 +53,8 @@ range_validator_params = (
     [(Pt2D(0,3),Pt2D(1,6.),Pt2D(10,10))],
     [(Pt2D(0,3),Pt2D(1,6.),Pt2D(0,0))],
 )
-class _TestRangeValidator():
+# @parameterized_testcase(['init'], range_validator_params[:1])
+class _TestRangeValidator:
     def setUp(self):
         # for some reason the test run a test case out of the
         # intended parameterized loop, so we feed the first
@@ -71,6 +91,11 @@ class _TestRangeValidator():
     def test_eval(self):
         for val in self.init:
             self.assertIs(self.vtor.eval(val), val)
+            
+# register_testcase(
+#     _RangeValidator,
+#     (['init'], range_validator_params[:1])
+# )
 
 @parameterized_class(['init'],range_validator_params[1:])
 class TestRangeValidator(_TestRangeValidator, unittest.TestCase):
@@ -90,6 +115,7 @@ integer_field_params = (
     [(0,10,15,'a')],
     [(0,100,-1,.3)],
 )
+# @parameterized_testcase(['init'], integer_field_params)
 class _TestIntegerField(_TestTypedRangeField):
     def setUp(self):
         # for some reason the test run a test case out of the
@@ -102,15 +128,20 @@ class _TestIntegerField(_TestTypedRangeField):
             field = vtor
         self.vtor = vtor
         self.Obj = Obj
+
+# register_testcase(
+#     _TestIntegerField,
+#     (['init'], integer_field_params)
+# )      
 @parameterized_class(['init'],integer_field_params[1:])
 class TestIntegerField(_TestIntegerField, unittest.TestCase):
     """Tests IntegerField descriptor"""
-
 
 char_field_params = (
     [('','12345','123456',.1)],
     [('foo','world','hi',tuple())],
 )
+# @parameterized_testcase(['init'], char_field_params)
 class _TestCharField(_TestTypedRangeField):
     def setUp(self):
         if not hasattr(self,'init'):
@@ -129,13 +160,20 @@ class _TestCharField(_TestTypedRangeField):
         val = self.init[0]
         self.assertEqual(self.vtor.eval(val),len(val))
         
+# register_testcase(
+#     _TestCharField,
+#     (['init'], char_field_params)
+# )
+    
 @parameterized_class(['init'],char_field_params[1:])
 class TestCharField(_TestCharField, unittest.TestCase):
     """Tests IntegerField descriptor"""
 
+
+
 if __name__ == '__main__':
     unittest.main()
-    # loader = unittest.defaultTestLoader
+    # loader = unittest.TestLoader()
     # suite = loader.loadTestsFromTestCase(TestRangeValidator)
     # runner = unittest.TextTestRunner()
     # runner.run(suite)
