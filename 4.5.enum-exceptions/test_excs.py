@@ -4,21 +4,28 @@ from unittest import TestCase
 from excs import EnumAppExceptions
 
 from collections import namedtuple
+ExcArgs = namedtuple('ExcArgs','code exc_type message')
+eg1 = dict(
+    NotAnInteger = ExcArgs(1,TypeError,'Value is not an integer.'),
+    OutOfRange = ExcArgs(2,ValueError,'Value is out of range.'),
+    KeyNotFound = ExcArgs(3,KeyError,'Key was not found in hashable.')
+)
 
 class TestEnumAppExceptions(TestCase):
+    dict_app_excs = {} # to be specified
     
     def load_eg_AppExceptions(self):
-        ExcArgs = namedtuple('ExcArgs','code exc_type message')
-        self.dict_app_excs = dict(
-            NotAnInteger = ExcArgs(1,TypeError,'Value is not an integer.'),
-            OutOfRange = ExcArgs(2,ValueError,'Value is out of range.'),
-            KeyNotFound = ExcArgs(3,KeyError,'Key was not found in hashable.')
-        )
+        self.dict_app_excs = eg1
         class AppExceptions(EnumAppExceptions):
             NotAnInteger = self.dict_app_excs['NotAnInteger']
             OutOfRange = self.dict_app_excs['OutOfRange']
             KeyNotFound = self.dict_app_excs['KeyNotFound']
         self.AppExceptions = AppExceptions
+        # self.AppExceptions = type(
+        #     'AppExceptions',
+        #     (EnumAppExceptions,),
+        #     self.dict_app_excs
+        # )
     
     def setUp(self):
         self.load_eg_AppExceptions()
