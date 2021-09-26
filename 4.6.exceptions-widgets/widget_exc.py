@@ -46,19 +46,45 @@ class WidgetException(Exception):
     def log(self)->None:
         self.logger.error(self.report)
 
-"""
-1. Supplier exceptions
-    a. Not manufactured anymore
-    b. Production delayed
-    c. Shipping delayed
+class SupplierException(WidgetException):
+    internal_msg = 'Supplier exception.'
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+
+class NotManufacturedException(SupplierException):
+    internal_msg = 'Widget is no longer manufactured by supplier.'
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
     
-2. Checkout exceptions
-    a. Inventory type exceptions
-        - out of stock
-    b. Pricing exceptions
-        - invalid coupon code
-        - cannot stack coupons
-"""
+class ProductionDelayedException(SupplierException):
+    internal_msg = 'Widget production has been delayed by supplier.'
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+    
+class ShippingDelayedException(SupplierException):
+    internal_msg = 'Widget shipping has been delayed by supplier.'
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+    
+class CheckoutException(WidgetException):
+    internal_msg = 'Checkout exception.'
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+    
+class InventoryException(CheckoutException):
+    internal_msg = 'Checkout inventory exception.'
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+    
+class OutOfStockException(InventoryException):
+    internal_msg = 'Inventory out of stock'
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+    
+class PricingException(CheckoutException):
+    internal_msg = 'Checkout pricing exception.'
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+    
+class InvalidCouponCodeException(PricingException):
+    internal_msg = 'Invalid checkout coupon code.'
+    status = HTTPStatus.BAD_REQUEST
+    
+class CannotStackCouponException(PricingException):
+    internal_msg = 'Cannot stack checkout coupon codes.'
+    status = HTTPStatus.BAD_REQUEST
         
 if __name__ == '__main__':
     try:

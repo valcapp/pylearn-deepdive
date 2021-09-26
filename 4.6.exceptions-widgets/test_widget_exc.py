@@ -1,24 +1,50 @@
 import pytest
 
-from widget_exc import WidgetException
+import widget_exc as wex
+import inspect
+widget_exceptions = inspect.getmembers(wex,
+    lambda kls: (
+        inspect.isclass(kls)
+        and issubclass(kls, wex.WidgetException)
+    )
+)
 
 import json
 from http import HTTPStatus
 import traceback
 
-tcases = (
-    {
-        'exc': WidgetException,
+def pick_status(exc_class:type)->dict:
+    default = HTTPStatus.INTERNAL_SERVER_ERROR
+    alternative = HTTPStatus.BAD_REQUEST
+    alternative_excs = (
+        wex.InvalidCouponCodeException,
+        wex.CannotStackCouponException,
+    )
+    return (
+        alternative
+        if exc_class in alternative_excs
+        else default
+    )
+    
+def make_tcase(exc_class:type, **kwargs)->dict:
+    return {
+        'exc': exc_class,
         'args': ('hello',),
         'user_msg': 'sorry user, I am exceptional',
-        'status': HTTPStatus.INTERNAL_SERVER_ERROR,
-    },
+        'status': pick_status(exc_class),
+        **kwargs
+    }
+    
+tcases = tuple(
+    make_tcase(exc_class)
+    for exc_name, exc_class
+    in widget_exceptions
 )
 
 @pytest.mark.parametrize('tcase', tcases)
 class TestWidgetException:
     """Tests WidgetException"""
-    def get_we(self, tcase:dict)->WidgetException:
+    def get_we(self, tcase:dict)->wex.WidgetException:
         kwargs = {
             k:tcase[k]
             for k in ('user_msg',)
@@ -63,4 +89,5 @@ class TestWidgetException:
         )
 
 if __name__ == '__main__':
+    # [print(w) for w in widget_exceptions]
     pytest.main()
